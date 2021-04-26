@@ -1,0 +1,60 @@
+#!/bin/bash
+
+ 
+
+#Agregar al archivo ~/.aws/credentials los parámetros de cambio de rol
+#Después de esto es posible usar el --profile en awscli
+
+ 
+
+echo "" > ~/.aws/credentials
+
+ 
+
+echo "[default]" >> ~/.aws/credentials
+echo "aws_access_key_id=$%&$%&$%&#%&%$" >> ~/.aws/credentials
+echo "aws_secret_access_key=#$#%&$/$/%#%#%#%#%"%"%$%%$%" >> ~/.aws/credentials
+echo "" >> ~/.aws/credentials
+
+ 
+
+while read profile; do
+
+ 
+
+unset AWS_ACCESS_KEY_ID
+unset AWS_SECRET_ACCESS_KEY
+unset AWS_SESSION_TOKEN
+
+ 
+
+echo "[$profile]" >> ~/.aws/credentials
+
+ 
+
+aws sts assume-role --role-arn "arn:aws:iam::${profile}:role/CrossAccountSeidorTech" --role-session-name "${profile}" --output text >> /home/ubuntu/tmp
+#aws sts assume-role --role-arn "arn:aws:iam::${profile}:role/CrossAccountSeidorTech" --role-session-name "${profile}" --output text --duration-seconds 43200 >> /home/ubuntu/tmp
+
+ 
+
+export AWS_ACCESS_KEY_ID=$(awk 'FNR == 2 {print $2;exit}' /home/ubuntu/tmp)
+echo "AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID" >> ~/.aws/credentials
+
+ 
+
+export AWS_SECRET_ACCESS_KEY=$(awk 'FNR == 2 {print $4;exit}' /home/ubuntu/tmp)
+echo "AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY" >> ~/.aws/credentials
+
+ 
+
+export AWS_SESSION_TOKEN=$(awk 'FNR == 2 {print $5;exit}' /home/ubuntu/tmp)
+echo "AWS_SESSION_TOKEN=$AWS_SESSION_TOKEN" >> ~/.aws/credentials
+echo ""  >> ~/.aws/credentials
+
+ 
+
+rm /home/ubuntu/tmp
+
+ 
+
+done < /home/ubuntu/profile
